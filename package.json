@@ -1,6 +1,6 @@
 {
   "name": "reddit-scraper",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Reddit Scraper",
   "main": "dist/lib/RedditScraper.js",
   "types": "dist/lib/RedditScraper.d.ts",

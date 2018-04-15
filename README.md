@@ -11,12 +11,40 @@
 ## Example
 
 ```javascript
-import {RedditScraper} from "../lib/RedditScraper";
+const RedditScraper = require("reddit-scraper");
+
+(async () => {
+ 
+    const redditScraperOptions = {
+        AppId: "appId",
+        AppSecret: "appSecret",
+    };
+ 
+    const requestOptions = {
+        Pages: 5,
+        Records: 25,
+        SubReddit: "javascript",
+        SortType: "hot",
+    };
+ 
+    try {
+        const redditScraper = new RedditScraper.RedditScraper(redditScraperOptions);
+        const scrapedData = await redditScraper.scrapeData(requestOptions);
+        console.log(scrapedData);
+    } catch (error) {
+        console.error(error);
+    }
+ 
+})();
+```
+
+```typescript
 import {
+	RedditScraper,
 	IPageListingResults,
 	IRequestOptions,
 	IRedditCredentials,
-} from "../lib/RedditScraper.types";
+} from "reddit-scraper";
 
 (async () => {
 
@@ -41,6 +69,5 @@ import {
 	}
 
 })();
-
 ```
 
