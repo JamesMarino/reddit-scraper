@@ -21,14 +21,20 @@ class RedditScraper {
     }
     scrapeData(options) {
         return __awaiter(this, void 0, void 0, function* () {
+            if (!options.BeforeDate) {
+                options.BeforeDate = new Date();
+            }
             this.AccessToken = yield this.getAccessToken();
             let finalPageListings = [];
-            let pageCount = 0;
+            let recordCount = 0;
             do {
-                finalPageListings = finalPageListings.concat(yield this.getPage(options));
-                options.FullName = options.Scan === "after" ? this.NextPage : this.PreviousPage;
-                pageCount++;
-            } while (options.FullName && pageCount < options.Pages);
+                const pageData = yield this.getPage(options);
+                const listingIsBeforeDateRange = (page) => (page.data.created_utc < options.BeforeDate.getTime());
+                const dataBeforeDateRange = pageData.filter(listingIsBeforeDateRange);
+                finalPageListings = finalPageListings.concat(dataBeforeDateRange);
+                options.FullName = this.NextPage;
+                recordCount += options.Records;
+            } while (options.FullName && recordCount < options.Pages * options.Records);
             return finalPageListings;
         });
     }
@@ -42,9 +48,9 @@ class RedditScraper {
                     "User-Agent": "RedditScraper",
                 },
             };
-            if (options.Scan && options.FullName) {
+            if (options.FullName) {
                 requestOptions.qs = {
-                    [options.Scan]: options.FullName,
+                    after: options.FullName,
                 };
             }
             const pageData = yield Request.get(finalUrl, requestOptions);

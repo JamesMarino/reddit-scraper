@@ -1,40 +1,14 @@
 import { Buffer } from "buffer";
 import * as Request from "request-promise-native";
 import {RequestPromiseOptions} from "request-promise-native";
-
-export interface IRedditCredentials {
-	AppId: string;
-	AppSecret: string;
-}
-
-export interface IRequestOptions {
-	SubReddit: string;
-	SortType: "hot" | "new" | "rising" | "top";
-	Pages: number;
-	Scan: "before" | "after";
-	FullName?: string;
-}
-
-export interface IAPIUrl {
-	AccessToken: string;
-	GetData: string;
-}
-
-export interface IAccessTokenResult {
-	access_token: string;
-	expires_in: number;
-}
-
-export interface IPageListingResult {
-	kind: string;
-	data: {
-		created: number;
-		title: string;
-		selftext: string;
-	};
-}
-
-export interface IPageListingResults extends Array<IPageListingResult> {}
+import {
+	IRedditCredentials,
+	IRequestOptions,
+	IAPIUrl,
+	IAccessTokenResult,
+	IPageListingResult,
+	IPageListingResults,
+} from "./RedditScraper.types";
 
 export class RedditScraper {
 
@@ -57,16 +31,29 @@ export class RedditScraper {
 	}
 
 	public async scrapeData(options: IRequestOptions): Promise<IPageListingResults> {
+
+		if (!options.BeforeDate) {
+			options.BeforeDate = new Date();
+		}
+
 		this.AccessToken = await this.getAccessToken();
 
 		let finalPageListings: IPageListingResults = [];
-		let pageCount: number = 0;
+		let recordCount: number = 0;
 
 		do {
-			finalPageListings = finalPageListings.concat(await this.getPage(options));
-			options.FullName = options.Scan === "after" ? this.NextPage : this.PreviousPage;
-			pageCount++;
-		} while (options.FullName && pageCount < options.Pages);
+			const pageData = await this.getPage(options);
+
+			const listingIsBeforeDateRange = (page: IPageListingResult) =>
+					(page.data.created_utc < options.BeforeDate.getTime());
+
+			const dataBeforeDateRange = pageData.filter(listingIsBeforeDateRange);
+
+			finalPageListings = finalPageListings.concat(dataBeforeDateRange);
+			options.FullName = this.NextPage;
+			recordCount += options.Records;
+
+		} while (options.FullName && recordCount < options.Pages * options.Records);
 
 		return finalPageListings;
 	}
@@ -83,9 +70,9 @@ export class RedditScraper {
 			},
 		};
 
-		if (options.Scan && options.FullName) {
+		if (options.FullName) {
 			requestOptions.qs = {
-				[options.Scan]: options.FullName,
+				after: options.FullName,
 			};
 		}
 

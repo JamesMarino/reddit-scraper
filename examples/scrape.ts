@@ -1,9 +1,9 @@
+import {RedditScraper} from "../lib/RedditScraper";
 import {
-	RedditScraper,
 	IPageListingResults,
 	IRequestOptions,
 	IRedditCredentials,
-} from "../lib/RedditScraper";
+} from "../lib/RedditScraper.types";
 
 (async () => {
 
@@ -14,15 +14,14 @@ import {
 
 	const requestOptions: IRequestOptions = {
 		Pages: 5,
-		SubReddit: "subredditname",
+		Records: 25,
+		SubReddit: "javascript",
 		SortType: "hot",
-		Scan: "after",
 	};
 
 	try {
 		const redditScraper: RedditScraper = new RedditScraper(redditScraperOptions);
 		const scrapedData: IPageListingResults = await redditScraper.scrapeData(requestOptions);
-
 		console.log(scrapedData);
 	} catch (error) {
 		console.error(error);

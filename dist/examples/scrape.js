@@ -16,9 +16,9 @@ const RedditScraper_1 = require("../lib/RedditScraper");
     };
     const requestOptions = {
         Pages: 5,
-        SubReddit: "subredditname",
+        Records: 25,
+        SubReddit: "javascript",
         SortType: "hot",
-        Scan: "after",
     };
     try {
         const redditScraper = new RedditScraper_1.RedditScraper(redditScraperOptions);
