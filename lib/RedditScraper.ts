@@ -70,10 +70,13 @@ export class RedditScraper {
 			},
 		};
 
+		requestOptions.qs = {};
+		
+		if (options.Records) {
+			requestOptions.qs["limit"] = options.Records;
+		}
 		if (options.FullName) {
-			requestOptions.qs = {
-				after: options.FullName,
-			};
+			requestOptions.qs["after"] = options.FullName;
 		}
 
 		const pageData = await Request.get(finalUrl, requestOptions);
